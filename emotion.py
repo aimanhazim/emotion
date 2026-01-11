@@ -209,7 +209,7 @@ if analyze_btn:
         st.markdown(
             f"""
             <div class="result-card {prediction}">
-            {emotion_emojis[prediction]} Predicted Emotion: <b>{prediction.upper()}</b><br>
+            {emotion_emojis[prediction]} Predicted Emotion: <b>{prediction.lower()}</b><br>
             Confidence: {confidence*100:.2f}%
             </div>
             """,
@@ -325,5 +325,6 @@ Built using NLP, TF-IDF, Logistic Regression & Streamlit<br>
 For academic and educational purposes only.
 </div>
 """, unsafe_allow_html=True)
+
 
 
