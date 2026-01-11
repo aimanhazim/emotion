@@ -57,12 +57,13 @@ if "history" not in st.session_state:
 # EMOJI MAP
 # -----------------------------------------------------
 emotion_emojis = {
-    "happy",
-    "sad",
-    "angry",
-    "fear",
-    "neutral"
+    "happy": "😊",
+    "sad": "😢",
+    "angry": "😡",
+    "fear": "😨",
+    "neutral": "😐"
 }
+
 
 # -----------------------------------------------------
 # CUSTOM CSS (WOW UI STYLE)
