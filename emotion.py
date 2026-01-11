@@ -208,15 +208,15 @@ if analyze_btn:
 
         emoji = emotion_emojis.get(prediction, "❓")
 
-st.markdown(
-    f"""
-    <div class="result-card {prediction}">
-    {emoji} Predicted Emotion: <b>{prediction.upper()}</b><br>
-    Confidence: {confidence*100:.2f}%
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+        st.markdown(
+            f"""
+            <div class="result-card {prediction}">
+            {emoji} Predicted Emotion: <b>{prediction.upper()}</b><br>
+            Confidence: {confidence*100:.2f}%
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 
         # -------------------------------------------------
@@ -328,6 +328,7 @@ Built using NLP, TF-IDF, Logistic Regression & Streamlit<br>
 For academic and educational purposes only.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
