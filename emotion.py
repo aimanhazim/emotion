@@ -57,11 +57,11 @@ if "history" not in st.session_state:
 # EMOJI MAP
 # -----------------------------------------------------
 emotion_emojis = {
-    "happy": "😊",
-    "sad": "😢",
-    "angry": "😡",
-    "fear": "😨",
-    "neutral": "😐"
+    "happy",
+    "sad",
+    "angry",
+    "fear",
+    "neutral"
 }
 
 # -----------------------------------------------------
@@ -324,4 +324,5 @@ Built using NLP, TF-IDF, Logistic Regression & Streamlit<br>
 For academic and educational purposes only.
 </div>
 """, unsafe_allow_html=True)
+
 
