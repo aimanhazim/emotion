@@ -189,7 +189,7 @@ if analyze_btn:
         cleaned_text = clean_text(text_input)
         vector = emotion_vectorizer.transform([cleaned_text])
 
-        prediction = emotion_model.predict(vector)[0]
+        prediction = emotion_model.predict(vector)[0].lower()
         probabilities = emotion_model.predict_proba(vector)[0]
         confidence = np.max(probabilities)
 
@@ -206,15 +206,18 @@ if analyze_btn:
         # -------------------------------------------------
         st.markdown("## 🎯 Prediction Result")
 
-        st.markdown(
-            f"""
-            <div class="result-card {prediction}">
-            {emotion_emojis[prediction]} Predicted Emotion: <b>{prediction.lower()}</b><br>
-            Confidence: {confidence*100:.2f}%
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        emoji = emotion_emojis.get(prediction, "❓")
+
+st.markdown(
+    f"""
+    <div class="result-card {prediction}">
+    {emoji} Predicted Emotion: <b>{prediction.upper()}</b><br>
+    Confidence: {confidence*100:.2f}%
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 
         # -------------------------------------------------
         # PROBABILITY DISTRIBUTION
@@ -325,6 +328,7 @@ Built using NLP, TF-IDF, Logistic Regression & Streamlit<br>
 For academic and educational purposes only.
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
