@@ -64,9 +64,8 @@ emotion_emojis = {
     "neutral": "😐"
 }
 
-
 # -----------------------------------------------------
-# CUSTOM CSS (WOW UI STYLE)
+# CUSTOM CSS (UPGRADED AESTHETICS)
 # -----------------------------------------------------
 st.markdown("""
 <style>
@@ -77,12 +76,13 @@ st.markdown("""
     background: linear-gradient(90deg, #7C3AED, #2563EB, #06B6D4);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    margin-bottom:0.2rem;
 }
 .subtitle {
     text-align:center;
     font-size:1.1rem;
     color:#6B7280;
-    margin-bottom:20px;
+    margin-bottom:25px;
 }
 .result-card {
     padding: 1.5rem;
@@ -97,18 +97,19 @@ st.markdown("""
 .angry {background: #FEE2E2; color: #7F1D1D; border: 3px solid #EF4444;}
 .fear {background: #FEF3C7; color: #92400E; border: 3px solid #F59E0B;}
 .neutral {background: #F3F4F6; color: #374151; border: 3px solid #9CA3AF;}
-
 .metric-box {
     padding: 1rem;
     background: #F9FAFB;
     border-radius: 10px;
     border: 1px solid #E5E7EB;
     text-align:center;
+    font-weight:600;
 }
 .footer {
     text-align:center;
     color:#6B7280;
     font-size:0.9rem;
+    margin-top:20px;
 }
 .stButton>button {
     background: linear-gradient(135deg, #7C3AED, #2563EB);
@@ -152,32 +153,31 @@ st.markdown('<div class="main-title">🎭 Emotion Detection System</div>', unsaf
 st.markdown('<div class="subtitle">AI-Powered Emotion Recognition using NLP & Machine Learning</div>', unsafe_allow_html=True)
 
 # -----------------------------------------------------
-# INPUT SECTION
+# INPUT SECTION WITH BUTTONS
 # -----------------------------------------------------
-st.markdown("## 📝 Enter a Sentence for Emotion Analysis")
+input_container = st.container()
+with input_container:
+    st.markdown("## 📝 Enter a Sentence for Emotion Analysis")
+    text_input = st.text_area(
+        "Type your sentence here:",
+        height=120,
+        placeholder="Example: I feel very happy and excited today!"
+    )
 
-text_input = st.text_area(
-    "Type your sentence here:",
-    height=120,
-    placeholder="Example: I feel very happy and excited today!"
-)
+    col1, col2, col3 = st.columns([1,1,1])
+    with col1:
+        analyze_btn = st.button("🔍 Analyze Emotion", use_container_width=True)
+    with col2:
+        clear_btn = st.button("🧹 Clear History", use_container_width=True)
+    with col3:
+        sample_btn = st.button("🎲 Load Sample", use_container_width=True)
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    analyze_btn = st.button("🔍 Analyze Emotion", use_container_width=True)
-with col2:
-    clear_btn = st.button("🧹 Clear History", use_container_width=True)
-with col3:
-    sample_btn = st.button("🎲 Load Sample", use_container_width=True)
+    if sample_btn:
+        text_input = "I feel really sad and lonely today."
 
-# Sample sentence
-if sample_btn:
-    text_input = "I feel really sad and lonely today."
-
-# Clear history
-if clear_btn:
-    st.session_state.history = []
-    st.success("History cleared successfully!")
+    if clear_btn:
+        st.session_state.history = []
+        st.success("History cleared successfully!")
 
 # -----------------------------------------------------
 # PREDICTION LOGIC
@@ -188,7 +188,6 @@ if analyze_btn:
     else:
         cleaned_text = clean_text(text_input)
         vector = emotion_vectorizer.transform([cleaned_text])
-
         prediction = emotion_model.predict(vector)[0].lower()
         probabilities = emotion_model.predict_proba(vector)[0]
         confidence = np.max(probabilities)
@@ -201,120 +200,81 @@ if analyze_btn:
             "Confidence (%)": round(confidence * 100, 2)
         })
 
-        # -------------------------------------------------
-        # DISPLAY RESULT
-        # -------------------------------------------------
-        st.markdown("## 🎯 Prediction Result")
-
-        emoji = emotion_emojis.get(prediction, "❓")
-
-        st.markdown(
-            f"""
-            <div class="result-card {prediction}">
-            {emoji} Predicted Emotion: <b>{prediction.upper()}</b><br>
-            Confidence: {confidence*100:.2f}%
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-
-        # -------------------------------------------------
-        # PROBABILITY DISTRIBUTION
-        # -------------------------------------------------
-        st.markdown("### 📊 Emotion Probability Distribution")
-
-        prob_df = pd.DataFrame({
-            "Emotion": emotion_model.classes_,
-            "Probability (%)": probabilities * 100
-        })
-
-        st.bar_chart(prob_df.set_index("Emotion"))
-
-        # -------------------------------------------------
-        # TEXT STATISTICS
-        # -------------------------------------------------
-        st.markdown("### 🧾 Text Statistics")
-        c1, c2, c3 = st.columns(3)
-
-        with c1:
+        # ------------------- DISPLAY RESULTS IN TABS -------------------
+        tabs = st.tabs(["🎯 Result", "📊 Stats & Dashboard", "📜 History"])
+        
+        # ------------------- RESULT TAB -------------------
+        with tabs[0]:
+            emoji = emotion_emojis.get(prediction, "❓")
             st.markdown(
-                f"<div class='metric-box'>Words<br><b>{len(text_input.split())}</b></div>",
+                f"<div class='result-card {prediction}'>{emoji} Predicted Emotion: <b>{prediction.upper()}</b><br>Confidence: {confidence*100:.2f}%</div>",
                 unsafe_allow_html=True
             )
 
-        with c2:
-            st.markdown(
-                f"<div class='metric-box'>Characters<br><b>{len(text_input)}</b></div>",
-                unsafe_allow_html=True
-            )
+            # Probability Distribution
+            st.markdown("### 📊 Emotion Probability Distribution")
+            prob_df = pd.DataFrame({
+                "Emotion": emotion_model.classes_,
+                "Probability (%)": probabilities * 100
+            })
+            st.bar_chart(prob_df.set_index("Emotion"))
 
-        with c3:
-            caps = sum(1 for c in text_input if c.isupper())
-            st.markdown(
-                f"<div class='metric-box'>Capital Letters<br><b>{caps}</b></div>",
-                unsafe_allow_html=True
-            )
+        # ------------------- STATS TAB -------------------
+        with tabs[1]:
+            st.markdown("### 🧾 Text Statistics")
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                st.markdown(f"<div class='metric-box'>Words<br><b>{len(text_input.split())}</b></div>", unsafe_allow_html=True)
+            with c2:
+                st.markdown(f"<div class='metric-box'>Characters<br><b>{len(text_input)}</b></div>", unsafe_allow_html=True)
+            with c3:
+                caps = sum(1 for c in text_input if c.isupper())
+                st.markdown(f"<div class='metric-box'>Capital Letters<br><b>{caps}</b></div>", unsafe_allow_html=True)
 
-# -----------------------------------------------------
-# HISTORY & EXPORT SECTION
-# -----------------------------------------------------
-st.markdown("---")
-st.markdown("## 📜 Prediction History")
+            if st.session_state.history:
+                st.markdown("---")
+                st.markdown("### 📊 Dashboard Summary")
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Total Predictions", len(st.session_state.history))
+                with col2:
+                    most_common = pd.DataFrame(st.session_state.history)["Predicted Emotion"].value_counts().idxmax()
+                    st.metric("Most Detected Emotion", most_common.upper())
+                with col3:
+                    avg_conf = pd.DataFrame(st.session_state.history)["Confidence (%)"].mean()
+                    st.metric("Average Confidence (%)", f"{avg_conf:.2f}")
 
-if len(st.session_state.history) > 0:
-    history_df = pd.DataFrame(st.session_state.history)
-    st.dataframe(history_df, use_container_width=True)
-
-    # Download as CSV
-    csv = history_df.to_csv(index=False).encode("utf-8")
-    st.download_button(
-        label="📥 Download History as CSV",
-        data=csv,
-        file_name="emotion_prediction_history.csv",
-        mime="text/csv",
-        use_container_width=True
-    )
-
-    # Simple dashboard stats
-    st.markdown("## 📊 Dashboard Summary")
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.metric("Total Predictions", len(history_df))
-
-    with col2:
-        most_common = history_df["Predicted Emotion"].value_counts().idxmax()
-        st.metric("Most Detected Emotion", most_common.upper())
-
-    with col3:
-        avg_conf = history_df["Confidence (%)"].mean()
-        st.metric("Average Confidence (%)", f"{avg_conf:.2f}")
-
-else:
-    st.info("No predictions yet. Start by analyzing a sentence above!")
+        # ------------------- HISTORY TAB -------------------
+        with tabs[2]:
+            if st.session_state.history:
+                history_df = pd.DataFrame(st.session_state.history)
+                st.dataframe(history_df, use_container_width=True)
+                csv = history_df.to_csv(index=False).encode("utf-8")
+                st.download_button(
+                    label="📥 Download History as CSV",
+                    data=csv,
+                    file_name="emotion_prediction_history.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
+            else:
+                st.info("No predictions yet. Start by analyzing a sentence above!")
 
 # -----------------------------------------------------
-# CASE STUDY EXAMPLES (For Academic Presentation)
+# CASE STUDY EXAMPLES (COLLAPSIBLE)
 # -----------------------------------------------------
-st.markdown("---")
-st.markdown("## 📚 Emotion Case Study Examples")
-
-case_col1, case_col2 = st.columns(2)
-
-with case_col1:
-    st.success("😊 HAPPY Example")
-    st.write("“I finally achieved my goals and I feel amazing today!”")
-
-    st.error("😡 ANGRY Example")
-    st.write("“This situation is unfair and I am extremely upset.”")
-
-with case_col2:
-    st.warning("😨 FEAR Example")
-    st.write("“I am scared about what will happen tomorrow.”")
-
-    st.info("😐 NEUTRAL Example")
-    st.write("“The meeting will start at 10 AM tomorrow.”")
+with st.expander("📚 Case Study Examples (Click to Expand)"):
+    case_col1, case_col2 = st.columns(2)
+    with case_col1:
+        st.success("😊 HAPPY Example")
+        st.write("“I finally achieved my goals and I feel amazing today!”")
+        st.error("😡 ANGRY Example")
+        st.write("“This situation is unfair and I am extremely upset.”")
+    with case_col2:
+        st.warning("😨 FEAR Example")
+        st.write("“I am scared about what will happen tomorrow.”")
+        st.info("😐 NEUTRAL Example")
+        st.write("“The meeting will start at 10 AM tomorrow.”")
 
 # -----------------------------------------------------
 # FOOTER
@@ -328,8 +288,3 @@ Built using NLP, TF-IDF, Logistic Regression & Streamlit<br>
 For academic and educational purposes only.
 </div>
 """, unsafe_allow_html=True)
-
-
-
-
-
