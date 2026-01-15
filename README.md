@@ -1,2 +1,2 @@
-# emotion
+# emotion AI PROJECT
 emotion app
